@@ -1,0 +1,78 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build the native library and run the Go suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v6
+        with:
+          path: sciencekit-go
+          persist-credentials: false
+      - name: Checkout the main sciencekit repository
+        uses: actions/checkout@v6
+        with:
+          path: sciencekit
+          repository: neurono-ml/sciencekit
+          persist-credentials: false
+      - name: Install Rust 1.85 toolchain
+        uses: dtolnay/rust-toolchain@1.85
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache-dependency-path: sciencekit-go/go.mod
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: sciencekit
+      - name: Pin psm to the last release that builds on the MSRV
+        working-directory: sciencekit
+        run: cargo update -p psm --precise 0.1.24
+      - name: Build the sciencekit shared library
+        working-directory: sciencekit
+        run: cargo build -p sciencekit_ffi --release
+      - name: Sync the vendored ABI header
+        working-directory: sciencekit-go
+        run: scripts/sync-header.sh "$GITHUB_WORKSPACE/sciencekit"
+      - name: gofmt
+        working-directory: sciencekit-go
+        run: test -z "$(gofmt -l .)"
+      - name: go vet
+        working-directory: sciencekit-go
+        env:
+          CGO_CFLAGS: -I${{ github.workspace }}/sciencekit/crates/sciencekit_ffi/include
+          CGO_LDFLAGS: -L${{ github.workspace }}/sciencekit/target/release -lsciencekit_ffi
+          LD_LIBRARY_PATH: ${{ github.workspace }}/sciencekit/target/release
+        run: go vet ./...
+      - name: go test
+        working-directory: sciencekit-go
+        env:
+          CGO_CFLAGS: -I${{ github.workspace }}/sciencekit/crates/sciencekit_ffi/include
+          CGO_LDFLAGS: -L${{ github.workspace }}/sciencekit/target/release -lsciencekit_ffi
+          LD_LIBRARY_PATH: ${{ github.workspace }}/sciencekit/target/release
+        run: go test ./...
+      - name: go test with the race detector
+        working-directory: sciencekit-go
+        env:
+          CGO_CFLAGS: -I${{ github.workspace }}/sciencekit/crates/sciencekit_ffi/include
+          CGO_LDFLAGS: -L${{ github.workspace }}/sciencekit/target/release -lsciencekit_ffi
+          LD_LIBRARY_PATH: ${{ github.workspace }}/sciencekit/target/release
+        run: go test -race ./...
+      - name: go test with strict cgo pointer checks
+        working-directory: sciencekit-go
+        env:
+          GOEXPERIMENT: cgocheck2
+          CGO_CFLAGS: -I${{ github.workspace }}/sciencekit/crates/sciencekit_ffi/include
+          CGO_LDFLAGS: -L${{ github.workspace }}/sciencekit/target/release -lsciencekit_ffi
+          LD_LIBRARY_PATH: ${{ github.workspace }}/sciencekit/target/release
+        run: go test ./...

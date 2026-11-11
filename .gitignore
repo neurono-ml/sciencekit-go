@@ -1,0 +1,9 @@
+# Native library produced by `scripts/build-native-library.sh`.
+/lib/*.so
+/lib/*.so.*
+/lib/*.dylib
+/lib/*.dll
+
+# Local build artifacts.
+/bin/
+/dist/
