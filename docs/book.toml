@@ -1,0 +1,34 @@
+[book]
+title = "sciencekit for Go"
+description = "Go bindings for the sciencekit machine-learning library — typed cgo wrappers, dense matrices, structured errors, and model persistence over the stable sciencekit_ffi C ABI."
+authors = ["sciencekit project"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+theme = "theme"
+default-theme = "coal"
+preferred-dark-theme = "coal"
+additional-css = ["theme/custom.css"]
+additional-js = [
+    "theme/mermaid.min.js",
+    "theme/mermaid-init.js",
+    "theme/custom.js",
+]
+git-repository-url = "https://github.com/neurono-ml/sciencekit-go"
+edit-url-template = "https://github.com/neurono-ml/sciencekit-go/edit/docs/documentations/docs/{path}"
+site-url = "/sciencekit-go/"
+no-section-label = true
+
+[output.html.search]
+enable = true
+boost-title = 2
+
+[output.html.playground]
+editable = false
+line-numbers = true
+copyable = true
