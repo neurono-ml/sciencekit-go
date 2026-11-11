@@ -1,10 +1,16 @@
 # sciencekit-go
 
+[![CI](https://github.com/neurono-ml/sciencekit-go/actions/workflows/ci.yml/badge.svg)](https://github.com/neurono-ml/sciencekit-go/actions/workflows/ci.yml)
+[![Documentation](https://github.com/neurono-ml/sciencekit-go/actions/workflows/deploy-documentation.yml/badge.svg)](https://neurono-ml.github.io/sciencekit-go/)
+
 Go bindings for the [sciencekit](https://github.com/neurono-ml/sciencekit)
 machine-learning library. The module is a thin, typed layer over the stable C
 ABI (`sciencekit_ffi`, spec `ffi-abi`): opaque handles, dense array conversion,
 structured errors and an explicit lifecycle, without hand-written `unsafe` in
 application code.
+
+- **Documentation:** <https://neurono-ml.github.io/sciencekit-go/>
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 
 ```go
 import sciencekit "github.com/neurono-ml/sciencekit-go"

@@ -7,3 +7,4 @@
 # Local build artifacts.
 /bin/
 /dist/
+/docs/book/
